@@ -1,0 +1,246 @@
+"""Deterministic providers and fields for tests and for the offline demo mode.
+
+The demo mode (`--demo`) serves these numbers instead of calling Copernicus and
+Open-Meteo, so the server runs without credentials or network. It also adds four
+verification fields that misbehave on purpose, for the resilience block.
+"""
+
+import asyncio
+from datetime import datetime, time, timedelta
+from typing import Literal
+from zoneinfo import ZoneInfo
+
+from ..domain.errors import SourceUnavailableError
+from ..domain.evidence import (
+    SatelliteEvidence,
+    SatellitePeriodEvidence,
+    WeatherEvidence,
+    WeatherHour,
+)
+from ..domain.fields import REGISTERED_FIELDS, RegisteredField, normalize_field_id
+from ..domain.geometry import polygon
+
+type FixtureProfile = Literal[
+    "canonical",
+    "poor_quality",
+    "satellite_unavailable",
+    "weather_unavailable",
+    "slow",
+]
+
+# Seconds the "slow" verification field waits before answering.
+SLOW_FIELD_DELAY_SECONDS = 20.0
+
+_PROFILE_BY_FIELD_ID: dict[str, FixtureProfile] = {
+    "SL-PADDY-MINNERIYA": "canonical",
+    "SL-PADDY-POOR": "poor_quality",
+    "SL-PADDY-SAT-FAIL": "satellite_unavailable",
+    "SL-PADDY-WEATHER-FAIL": "weather_unavailable",
+    "SL-PADDY-SLOW": "slow",
+}
+
+_PRODUCTION_IDS = {field.id for field in REGISTERED_FIELDS}
+
+TEST_REGISTERED_FIELDS: tuple[RegisteredField, ...] = (
+    RegisteredField(
+        id="SL-PADDY-MINNERIYA",
+        name="Minneriya Paddy Fields",
+        crop="paddy",
+        time_zone="Asia/Colombo",
+        geometry=polygon(
+            (80.910, 8.050),
+            (80.950, 8.050),
+            (80.950, 8.020),
+            (80.910, 8.020),
+            (80.910, 8.050),
+        ),
+    ),
+    RegisteredField(
+        id="SL-PADDY-POOR",
+        name="Poor-quality verification field",
+        crop="paddy",
+        time_zone="Asia/Colombo",
+        geometry=polygon(
+            (80.4050, 7.4862),
+            (80.4060, 7.4862),
+            (80.4060, 7.4872),
+            (80.4050, 7.4872),
+            (80.4050, 7.4862),
+        ),
+    ),
+    RegisteredField(
+        id="SL-PADDY-SAT-FAIL",
+        name="Satellite-failure verification field",
+        crop="paddy",
+        time_zone="Asia/Colombo",
+        geometry=polygon(
+            (80.4070, 7.4862),
+            (80.4080, 7.4862),
+            (80.4080, 7.4872),
+            (80.4070, 7.4872),
+            (80.4070, 7.4862),
+        ),
+    ),
+    RegisteredField(
+        id="SL-PADDY-WEATHER-FAIL",
+        name="Weather-failure verification field",
+        crop="paddy",
+        time_zone="Asia/Colombo",
+        geometry=polygon(
+            (80.4090, 7.4862),
+            (80.4100, 7.4862),
+            (80.4100, 7.4872),
+            (80.4090, 7.4872),
+            (80.4090, 7.4862),
+        ),
+    ),
+    RegisteredField(
+        id="SL-PADDY-SLOW",
+        name="Slow-provider verification field",
+        crop="paddy",
+        time_zone="Asia/Colombo",
+        geometry=polygon(
+            (80.4110, 7.4862),
+            (80.4120, 7.4862),
+            (80.4120, 7.4872),
+            (80.4110, 7.4872),
+            (80.4110, 7.4862),
+        ),
+    ),
+)
+
+
+# Demo mode knows the four real zones plus the verification fields.
+DEMO_FIELDS: tuple[RegisteredField, ...] = (
+    *REGISTERED_FIELDS,
+    *(field for field in TEST_REGISTERED_FIELDS if field.id not in _PRODUCTION_IDS),
+)
+
+
+def find_test_field(field_id: str) -> RegisteredField | None:
+    normalized = normalize_field_id(field_id)
+    return next((field for field in TEST_REGISTERED_FIELDS if field.id == normalized), None)
+
+
+def find_demo_field(field_id: str) -> RegisteredField | None:
+    normalized = normalize_field_id(field_id)
+    return next((field for field in DEMO_FIELDS if field.id == normalized), None)
+
+
+CANONICAL_SATELLITE = SatelliteEvidence(
+    source="sentinel-2-l2a-fixture",
+    current=SatellitePeriodEvidence(mean_ndvi=0.56, ndvi_standard_deviation=0.17),
+    previous=SatellitePeriodEvidence(mean_ndvi=0.66, ndvi_standard_deviation=0.14),
+    valid_observations=4,
+    average_cloud_coverage_percentage=11,
+    usable_pixel_percentage=92,
+    periods_comparable=True,
+)
+
+POOR_QUALITY_SATELLITE = SatelliteEvidence(
+    source="sentinel-2-l2a-fixture",
+    current=SatellitePeriodEvidence(mean_ndvi=0.52, ndvi_standard_deviation=0.08),
+    previous=SatellitePeriodEvidence(mean_ndvi=0.61, ndvi_standard_deviation=0.07),
+    valid_observations=1,
+    average_cloud_coverage_percentage=74,
+    usable_pixel_percentage=31,
+    periods_comparable=False,
+)
+
+# Other production zones get their own plausible demo numbers.
+_DEMO_SATELLITE_BY_FIELD_ID: dict[str, SatelliteEvidence] = {
+    "SL-PADDY-SAMMANTHURAI": SatelliteEvidence(
+        source="sentinel-2-l2a-fixture",
+        current=SatellitePeriodEvidence(mean_ndvi=0.71, ndvi_standard_deviation=0.06),
+        previous=SatellitePeriodEvidence(mean_ndvi=0.69, ndvi_standard_deviation=0.06),
+        valid_observations=5,
+        average_cloud_coverage_percentage=8,
+        usable_pixel_percentage=95,
+        periods_comparable=True,
+    ),
+    "SL-PADDY-KALA-WEWA": SatelliteEvidence(
+        source="sentinel-2-l2a-fixture",
+        current=SatellitePeriodEvidence(mean_ndvi=0.48, ndvi_standard_deviation=0.08),
+        previous=SatellitePeriodEvidence(mean_ndvi=0.53, ndvi_standard_deviation=0.07),
+        valid_observations=3,
+        average_cloud_coverage_percentage=28,
+        usable_pixel_percentage=72,
+        periods_comparable=True,
+    ),
+    "SL-TEA-PEDRO": SatelliteEvidence(
+        source="sentinel-2-l2a-fixture",
+        current=SatellitePeriodEvidence(mean_ndvi=0.78, ndvi_standard_deviation=0.05),
+        previous=SatellitePeriodEvidence(mean_ndvi=0.70, ndvi_standard_deviation=0.05),
+        valid_observations=2,
+        average_cloud_coverage_percentage=45,
+        usable_pixel_percentage=55,
+        periods_comparable=True,
+    ),
+}
+
+_AS_OF = datetime(2026, 7, 14, 10, tzinfo=ZoneInfo("Asia/Colombo"))
+_DAILY_RAINFALL = (16.0, 22.0, 0.0, 18.0, 24.0, 32.0, 0.0)
+
+
+def _weather_history() -> tuple[WeatherHour, ...]:
+    start_date = _AS_OF.date() - timedelta(days=6)
+    hours: list[WeatherHour] = []
+    cursor = datetime.combine(start_date, time(), tzinfo=_AS_OF.tzinfo)
+    while cursor <= _AS_OF:
+        day_offset = (_AS_OF.date() - cursor.date()).days
+        rainfall = _DAILY_RAINFALL[day_offset] if cursor.hour == 9 else 0.0
+        hours.append(WeatherHour(cursor, rainfall, 88.0))
+        cursor += timedelta(hours=1)
+    return tuple(hours)
+
+
+def _weather_forecast() -> tuple[WeatherHour, ...]:
+    return tuple(
+        WeatherHour(
+            timestamp=_AS_OF + timedelta(hours=offset),
+            rainfall_mm=22.0 if offset == 1 else 24.0 if offset == 25 else 0.0,
+            relative_humidity_percentage=89.0,
+        )
+        for offset in range(1, 49)
+    )
+
+
+CANONICAL_WEATHER = WeatherEvidence(
+    source="deterministic-weather-fixture",
+    as_of=_AS_OF,
+    history=_weather_history(),
+    forecast=_weather_forecast(),
+)
+
+
+class FixtureSatelliteProvider:
+    async def get_period_summary(
+        self, field: RegisteredField, comparison_days: int
+    ) -> SatelliteEvidence:
+        del comparison_days
+        profile = _PROFILE_BY_FIELD_ID.get(field.id, "canonical")
+        if profile == "satellite_unavailable":
+            raise SourceUnavailableError(
+                "satellite", "the verification fixture simulates a provider timeout"
+            )
+        if profile == "slow":
+            await asyncio.sleep(SLOW_FIELD_DELAY_SECONDS)
+        if profile == "poor_quality":
+            return POOR_QUALITY_SATELLITE
+        return _DEMO_SATELLITE_BY_FIELD_ID.get(field.id, CANONICAL_SATELLITE)
+
+
+class FixtureWeatherProvider:
+    async def get_daily_context(
+        self, field: RegisteredField, historical_days: int, forecast_days: int
+    ) -> WeatherEvidence:
+        del historical_days, forecast_days
+        if _PROFILE_BY_FIELD_ID.get(field.id) == "weather_unavailable":
+            raise SourceUnavailableError(
+                "weather", "the verification fixture simulates a provider timeout"
+            )
+        return CANONICAL_WEATHER
+
+
+FIXTURE_SATELLITE_PROVIDER = FixtureSatelliteProvider()
+FIXTURE_WEATHER_PROVIDER = FixtureWeatherProvider()
