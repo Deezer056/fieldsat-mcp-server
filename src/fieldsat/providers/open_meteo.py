@@ -97,7 +97,9 @@ class OpenMeteoWeatherProvider:
         started_at = time.monotonic()
         longitude, latitude = centroid(field.geometry)
         requested_history = max(7, historical_days)
-        requested_forecast = max(3, forecast_days)
+        # Open-Meteo counts forecast days from its own current date, which can be a day behind
+        # the field's local date (00:00-05:30 in Colombo). One extra day keeps 48 hours covered.
+        requested_forecast = max(3, forecast_days) + 1
         params: dict[str, str | int | float | bool | None] = {
             "latitude": latitude,
             "longitude": longitude,

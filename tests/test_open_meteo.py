@@ -68,7 +68,7 @@ async def test_fetches_fixed_open_meteo_windows_and_aggregates_weather() -> None
     assert str(captured_request.url).startswith(OPEN_METEO_FORECAST_URL)
     assert captured_request.url.params["hourly"] == "precipitation,relative_humidity_2m"
     assert captured_request.url.params["past_days"] == "7"
-    assert captured_request.url.params["forecast_days"] == "3"
+    assert captured_request.url.params["forecast_days"] == "4"
     assert captured_request.url.params["timezone"] == "Asia/Colombo"
     assert float(captured_request.url.params["latitude"]) == pytest.approx(8.035)
     assert float(captured_request.url.params["longitude"]) == pytest.approx(80.930)
