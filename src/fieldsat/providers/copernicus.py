@@ -12,10 +12,10 @@ from uuid import uuid4
 
 import httpx
 
-from ..domain.errors import SourceUnavailableError
-from ..domain.evidence import SatelliteEvidence, SatellitePeriodEvidence
-from ..domain.fields import RegisteredField
-from .http_retry import Jitter, Sleep, log_provider_event, request_with_retry
+from fieldsat.domain.errors import SourceUnavailableError
+from fieldsat.domain.evidence import SatelliteEvidence, SatellitePeriodEvidence
+from fieldsat.domain.fields import RegisteredField
+from fieldsat.providers.http_retry import Jitter, Sleep, log_provider_event, request_with_retry
 
 COPERNICUS_TOKEN_URL = (
     "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"

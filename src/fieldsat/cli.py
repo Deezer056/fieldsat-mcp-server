@@ -5,13 +5,11 @@ import logging
 import os
 import sys
 
-from .runtime import create_demo_server, create_live_server
+from fieldsat.runtime import create_demo_server, create_live_server
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        prog="fieldsat", description="Serve field evidence over MCP."
-    )
+    parser = argparse.ArgumentParser(prog="fieldsat", description="Serve field evidence over MCP.")
     parser.add_argument(
         "--demo",
         action="store_true",

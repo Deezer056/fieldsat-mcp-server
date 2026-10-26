@@ -46,4 +46,8 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["B", "E", "F", "I", "RUF", "SIM", "UP"]
+select = ["B", "E", "F", "I", "RUF", "SIM", "TID", "UP"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+# Import the package by name (from fieldsat.domain import ...), never relative to the file.
+ban-relative-imports = "all"

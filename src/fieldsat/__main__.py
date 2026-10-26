@@ -1,5 +1,5 @@
 """Allow `python -m fieldsat`."""
 
-from .cli import main
+from fieldsat.cli import main
 
 main()

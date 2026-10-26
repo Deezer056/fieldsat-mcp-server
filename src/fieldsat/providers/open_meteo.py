@@ -10,11 +10,11 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from ..domain.errors import SourceUnavailableError
-from ..domain.evidence import WeatherEvidence, WeatherHour
-from ..domain.fields import RegisteredField
-from ..domain.geometry import centroid
-from .http_retry import Jitter, Sleep, log_provider_event, request_with_retry
+from fieldsat.domain.errors import SourceUnavailableError
+from fieldsat.domain.evidence import WeatherEvidence, WeatherHour
+from fieldsat.domain.fields import RegisteredField
+from fieldsat.domain.geometry import centroid
+from fieldsat.providers.http_retry import Jitter, Sleep, log_provider_event, request_with_retry
 
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 

@@ -4,7 +4,13 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
-from .geometry import PolygonGeometry, centroid, point_in_ring, polygon, validate_ring
+from fieldsat.domain.geometry import (
+    PolygonGeometry,
+    centroid,
+    point_in_ring,
+    polygon,
+    validate_ring,
+)
 
 type Crop = Literal["paddy", "tea"]
 

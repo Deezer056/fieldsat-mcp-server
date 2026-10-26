@@ -2,8 +2,8 @@
 
 from typing import Protocol
 
-from ..domain.evidence import SatelliteEvidence, WeatherEvidence
-from ..domain.fields import RegisteredField
+from fieldsat.domain.evidence import SatelliteEvidence, WeatherEvidence
+from fieldsat.domain.fields import RegisteredField
 
 
 class SatelliteEvidenceProvider(Protocol):

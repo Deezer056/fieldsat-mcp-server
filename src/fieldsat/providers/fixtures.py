@@ -10,15 +10,15 @@ from datetime import datetime, time, timedelta
 from typing import Literal
 from zoneinfo import ZoneInfo
 
-from ..domain.errors import SourceUnavailableError
-from ..domain.evidence import (
+from fieldsat.domain.errors import SourceUnavailableError
+from fieldsat.domain.evidence import (
     SatelliteEvidence,
     SatellitePeriodEvidence,
     WeatherEvidence,
     WeatherHour,
 )
-from ..domain.fields import REGISTERED_FIELDS, RegisteredField, normalize_field_id
-from ..domain.geometry import polygon
+from fieldsat.domain.fields import REGISTERED_FIELDS, RegisteredField, normalize_field_id
+from fieldsat.domain.geometry import polygon
 
 type FixtureProfile = Literal[
     "canonical",

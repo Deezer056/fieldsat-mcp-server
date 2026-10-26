@@ -2,9 +2,14 @@
 
 from fastmcp import FastMCP
 
-from . import __version__
-from .domain.fields import REGISTERED_FIELDS, FieldLookup, RegisteredField, find_registered_field
-from .providers.base import SatelliteEvidenceProvider, WeatherEvidenceProvider
+from fieldsat import __version__
+from fieldsat.domain.fields import (
+    REGISTERED_FIELDS,
+    FieldLookup,
+    RegisteredField,
+    find_registered_field,
+)
+from fieldsat.providers.base import SatelliteEvidenceProvider, WeatherEvidenceProvider
 
 INSTRUCTIONS = (
     "Read-only field-level satellite and weather evidence for Sri Lankan agricultural fields. "

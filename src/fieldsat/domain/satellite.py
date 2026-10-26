@@ -2,10 +2,10 @@
 
 from typing import Literal
 
-from ..providers.base import SatelliteEvidenceProvider
-from .contracts import SatelliteContext
-from .evidence import SatelliteEvidence
-from .fields import RegisteredField
+from fieldsat.domain.contracts import SatelliteContext
+from fieldsat.domain.evidence import SatelliteEvidence
+from fieldsat.domain.fields import RegisteredField
+from fieldsat.providers.base import SatelliteEvidenceProvider
 
 type NdviTrend = Literal[
     "significant_decline",

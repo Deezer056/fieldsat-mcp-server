@@ -4,10 +4,10 @@ from collections import defaultdict
 from collections.abc import Iterable
 from datetime import date, timedelta
 
-from ..providers.base import WeatherEvidenceProvider
-from .contracts import WeatherContext
-from .evidence import WeatherHour
-from .fields import RegisteredField
+from fieldsat.domain.contracts import WeatherContext
+from fieldsat.domain.evidence import WeatherHour
+from fieldsat.domain.fields import RegisteredField
+from fieldsat.providers.base import WeatherEvidenceProvider
 
 HEAVY_RAIN_48_HOURS_MM = 30.0
 HEAVY_RAIN_7_DAYS_MM = 75.0

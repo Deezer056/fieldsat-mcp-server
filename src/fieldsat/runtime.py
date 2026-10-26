@@ -4,15 +4,15 @@ from collections.abc import Mapping
 
 from fastmcp import FastMCP
 
-from .providers.copernicus import CopernicusCredentials, CopernicusSatelliteProvider
-from .providers.fixtures import (
+from fieldsat.providers.copernicus import CopernicusCredentials, CopernicusSatelliteProvider
+from fieldsat.providers.fixtures import (
     DEMO_FIELDS,
     FIXTURE_SATELLITE_PROVIDER,
     FIXTURE_WEATHER_PROVIDER,
     find_demo_field,
 )
-from .providers.open_meteo import OpenMeteoWeatherProvider
-from .server import create_server
+from fieldsat.providers.open_meteo import OpenMeteoWeatherProvider
+from fieldsat.server import create_server
 
 
 def create_live_server(environment: Mapping[str, str] | None = None) -> FastMCP:
