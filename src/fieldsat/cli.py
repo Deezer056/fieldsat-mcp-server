@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+from dotenv import find_dotenv, load_dotenv
+
 from fieldsat.runtime import create_demo_server, create_live_server
 
 
@@ -28,6 +30,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> None:
+    # Read .env from the working directory. Variables already set in the environment win.
+    # Load before parse_args: the --demo default reads STEMLINK_MCP_DEMO.
+    load_dotenv(find_dotenv(usecwd=True))
     args = parse_args(argv)
     # Logs go to stderr. With stdio, stdout carries the protocol and nothing else.
     logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(levelname)s %(message)s")
