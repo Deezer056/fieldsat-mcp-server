@@ -22,6 +22,7 @@ async def test_live_server_exposes_the_same_tools() -> None:
         "list_fields",
         "get_satellite_analysis",
         "get_weather_context",
+        "get_field_summary",
     ]
 
 

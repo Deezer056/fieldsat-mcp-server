@@ -122,3 +122,17 @@ async def test_weather_failure_does_not_remove_satellite() -> None:
         "get_satellite_analysis", {"field_id": "SL-PADDY-WEATHER-FAIL", "comparison_days": 14}
     )
     assert satellite["ndvi_change_percentage"] == -15.2
+
+
+async def test_field_summary_returns_both_sources() -> None:
+    payload = await call("get_field_summary", {"field_id": "SL-PADDY-MINNERIYA"})
+    assert payload["satellite"]["ndvi_change_percentage"] == -15.2
+    assert payload["weather"]["heavy_rain_expected"] is True
+    assert payload["errors"] == []
+
+
+async def test_field_summary_keeps_weather_when_satellite_fails() -> None:
+    payload = await call("get_field_summary", {"field_id": "SL-PADDY-SAT-FAIL"})
+    assert payload["satellite"] is None
+    assert payload["weather"]["heavy_rain_expected"] is True
+    assert "SATELLITE_SOURCE_UNAVAILABLE" in payload["errors"][0]
