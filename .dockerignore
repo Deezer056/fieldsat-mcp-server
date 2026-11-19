@@ -1,0 +1,9 @@
+#secrets and local state 
+.env
+.env.*
+.venv
+.git
+.idea
+__pycache__
+*.pyc
+tests
